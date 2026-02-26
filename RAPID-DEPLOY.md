@@ -428,7 +428,7 @@ If you want to automate even more:
 **Problems during deployment?**
 - Check: `docs/TROUBLESHOOTING.md`
 - Email: support@iwilltech.co.uk
-- Discord: [IWILL Community](https://discord.gg/PLACEHOLDER)
+- Discord: [IWILL Community](https://discord.gg/NZnKRMFS)
 
 **Want professional installation?**
 - On-site setup available

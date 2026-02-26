@@ -227,7 +227,7 @@ Now AI can only reach approved cloud APIs!
 **Need help?**
 - Docs: `/docs/INSTALLATION-GUIDE.md`
 - Email: support@iwilltech.co.uk
-- Discord: [IWILL Community](https://discord.gg/PLACEHOLDER)
+- Discord: [IWILL Community](https://discord.gg/NZnKRMFS)
 
 ---
 
