@@ -1,0 +1,6 @@
+marketing/
+prompts/
+templates/
+SUBSCRIPTION-PAGE-PROMPT.md
+*.tmp
+*.log

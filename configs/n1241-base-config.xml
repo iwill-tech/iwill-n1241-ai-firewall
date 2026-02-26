@@ -1,0 +1,289 @@
+<?xml version="1.0"?>
+<!-- 
+IWILL N1241 AI Firewall - Base Configuration
+Import this after fresh OPNsense installation to get:
+- VLAN configuration (AI_LAB, IOT)
+- Interface assignments
+- DHCP servers
+- Firewall rules (network isolation)
+- Basic security settings
+
+NOTE: You still need to:
+1. Configure WAN (DHCP/Static based on your ISP)
+2. Set root password
+3. Install and configure Zenarmor manually
+-->
+<opnsense>
+  <version>26.1</version>
+  <lastchange></lastchange>
+  
+  <!-- System Settings -->
+  <system>
+    <optimization>normal</optimization>
+    <hostname>ai-firewall</hostname>
+    <domain>local</domain>
+    <dnsserver>1.1.1.1</dnsserver>
+    <dnsserver>8.8.8.8</dnsserver>
+    <timezone>Europe/Sofia</timezone>
+    <timeservers>0.opnsense.pool.ntp.org 1.opnsense.pool.ntp.org</timeservers>
+    <webgui>
+      <protocol>https</protocol>
+      <ssl-certref>5f99e22e7d5c3</ssl-certref>
+      <port></port>
+      <max_procs>2</max_procs>
+      <noantilockout>0</noantilockout>
+      <nodnsrebindcheck>0</nodnsrebindcheck>
+      <nohttpreferercheck>0</nohttpreferercheck>
+      <compression>6</compression>
+    </webgui>
+    <disablenatreflection>yes</disablenatreflection>
+    <usevirtualterminal>1</usevirtualterminal>
+    <disableconsolemenu></disableconsolemenu>
+    <disablevlanhwfilter>1</disablevlanhwfilter>
+    <disablechecksumoffloading>1</disablechecksumoffloading>
+    <disablesegmentationoffloading>1</disablesegmentationoffloading>
+    <disablelargereceiveoffloading>1</disablelargereceiveoffloading>
+    <enablesshd>enabled</enablesshd>
+  </system>
+
+  <!-- Interface VLANs -->
+  <vlans>
+    <vlan>
+      <if>igc2</if>
+      <tag>20</tag>
+      <pcp>0</pcp>
+      <proto></proto>
+      <descr>AI-Lab</descr>
+      <vlanif>igc2.20</vlanif>
+    </vlan>
+    <vlan>
+      <if>igc3</if>
+      <tag>30</tag>
+      <pcp>0</pcp>
+      <proto></proto>
+      <descr>IoT</descr>
+      <vlanif>igc3.30</vlanif>
+    </vlan>
+  </vlans>
+
+  <!-- Interface Assignments -->
+  <interfaces>
+    <!-- WAN - Port 1 -->
+    <wan>
+      <enable>1</enable>
+      <if>igc0</if>
+      <descr>WAN</descr>
+      <spoofmac></spoofmac>
+      <ipaddr>dhcp</ipaddr>
+      <dhcphostname></dhcphostname>
+      <alias-address></alias-address>
+      <alias-subnet>32</alias-subnet>
+      <dhcprejectfrom></dhcprejectfrom>
+      <adv_dhcp_pt_timeout></adv_dhcp_pt_timeout>
+      <adv_dhcp_pt_retry></adv_dhcp_pt_retry>
+      <adv_dhcp_pt_select_timeout></adv_dhcp_pt_select_timeout>
+      <adv_dhcp_pt_reboot></adv_dhcp_pt_reboot>
+      <adv_dhcp_pt_backoff_cutoff></adv_dhcp_pt_backoff_cutoff>
+      <adv_dhcp_pt_initial_interval></adv_dhcp_pt_initial_interval>
+      <adv_dhcp_config_advanced></adv_dhcp_config_advanced>
+      <adv_dhcp_send_options></adv_dhcp_send_options>
+      <adv_dhcp_request_options></adv_dhcp_request_options>
+      <adv_dhcp_required_options></adv_dhcp_required_options>
+      <adv_dhcp_option_modifiers></adv_dhcp_option_modifiers>
+      <adv_dhcp_config_file_override></adv_dhcp_config_file_override>
+      <adv_dhcp_config_file_override_path></adv_dhcp_config_file_override_path>
+      <blockpriv>on</blockpriv>
+      <blockbogons>on</blockbogons>
+    </wan>
+    
+    <!-- LAN - Port 2 -->
+    <lan>
+      <enable>1</enable>
+      <if>igc1</if>
+      <descr>LAN</descr>
+      <spoofmac></spoofmac>
+      <ipaddr>192.168.1.1</ipaddr>
+      <subnet>24</subnet>
+    </lan>
+    
+    <!-- AI_LAB - Port 3 (VLAN 20) -->
+    <opt1>
+      <enable>1</enable>
+      <if>igc2.20</if>
+      <descr>AI_LAB</descr>
+      <ipaddr>192.168.20.1</ipaddr>
+      <subnet>24</subnet>
+      <spoofmac></spoofmac>
+    </opt1>
+    
+    <!-- IOT - Port 4 (VLAN 30) -->
+    <opt2>
+      <enable>1</enable>
+      <if>igc3.30</if>
+      <descr>IOT</descr>
+      <ipaddr>192.168.30.1</ipaddr>
+      <subnet>24</subnet>
+      <spoofmac></spoofmac>
+    </opt2>
+  </interfaces>
+
+  <!-- DHCP Server Configuration -->
+  <dhcpd>
+    <!-- LAN DHCP -->
+    <lan>
+      <enable>1</enable>
+      <range>
+        <from>192.168.1.10</from>
+        <to>192.168.1.250</to>
+      </range>
+      <defaultleasetime>7200</defaultleasetime>
+      <maxleasetime>86400</maxleasetime>
+      <gateway>192.168.1.1</gateway>
+      <dnsserver>192.168.1.1</dnsserver>
+    </lan>
+    
+    <!-- AI_LAB DHCP -->
+    <opt1>
+      <enable>1</enable>
+      <range>
+        <from>192.168.20.10</from>
+        <to>192.168.20.250</to>
+      </range>
+      <defaultleasetime>7200</defaultleasetime>
+      <maxleasetime>86400</maxleasetime>
+      <gateway>192.168.20.1</gateway>
+      <dnsserver>192.168.20.1</dnsserver>
+    </opt1>
+    
+    <!-- IOT DHCP -->
+    <opt2>
+      <enable>1</enable>
+      <range>
+        <from>192.168.30.10</from>
+        <to>192.168.30.250</to>
+      </range>
+      <defaultleasetime>7200</defaultleasetime>
+      <maxleasetime>86400</maxleasetime>
+      <gateway>192.168.30.1</gateway>
+      <dnsserver>192.168.30.1</dnsserver>
+    </opt2>
+  </dhcpd>
+
+  <!-- Firewall Filter Rules -->
+  <filter>
+    <!-- AI_LAB Rules -->
+    <rule>
+      <type>block</type>
+      <interface>opt1</interface>
+      <ipprotocol>inet</ipprotocol>
+      <descr>Block AI from LAN</descr>
+      <source>
+        <network>opt1</network>
+      </source>
+      <destination>
+        <network>lan</network>
+      </destination>
+      <log>1</log>
+    </rule>
+    
+    <rule>
+      <type>pass</type>
+      <interface>opt1</interface>
+      <ipprotocol>inet</ipprotocol>
+      <descr>Allow AI to internet</descr>
+      <source>
+        <network>opt1</network>
+      </source>
+      <destination>
+        <any>1</any>
+      </destination>
+    </rule>
+    
+    <!-- IOT Rules -->
+    <rule>
+      <type>block</type>
+      <interface>opt2</interface>
+      <ipprotocol>inet</ipprotocol>
+      <descr>Isolate IoT from internal networks</descr>
+      <source>
+        <network>opt2</network>
+      </source>
+      <destination>
+        <network>lan</network>
+        <network>opt1</network>
+      </destination>
+      <log>1</log>
+    </rule>
+    
+    <rule>
+      <type>pass</type>
+      <interface>opt2</interface>
+      <ipprotocol>inet</ipprotocol>
+      <protocol>tcp</protocol>
+      <descr>IoT HTTPS for updates</descr>
+      <source>
+        <network>opt2</network>
+      </source>
+      <destination>
+        <any>1</any>
+        <port>443</port>
+      </destination>
+    </rule>
+    
+    <rule>
+      <type>pass</type>
+      <interface>opt2</interface>
+      <ipprotocol>inet</ipprotocol>
+      <protocol>udp</protocol>
+      <descr>IoT DNS only</descr>
+      <source>
+        <network>opt2</network>
+      </source>
+      <destination>
+        <any>1</any>
+        <port>53</port>
+      </destination>
+    </rule>
+    
+    <!-- LAN Default Allow -->
+    <rule>
+      <type>pass</type>
+      <interface>lan</interface>
+      <ipprotocol>inet</ipprotocol>
+      <descr>Default allow LAN to any</descr>
+      <source>
+        <network>lan</network>
+      </source>
+      <destination>
+        <any>1</any>
+      </destination>
+    </rule>
+  </filter>
+
+  <!-- NAT Configuration -->
+  <nat>
+    <outbound>
+      <mode>automatic</mode>
+    </outbound>
+  </nat>
+
+  <!-- Unbound DNS -->
+  <unbound>
+    <enable>on</enable>
+    <dnssec>on</dnssec>
+    <forwarding>off</forwarding>
+    <regdhcp>on</regdhcp>
+    <regdhcpstatic>on</regdhcpstatic>
+  </unbound>
+
+  <!-- Syslog -->
+  <syslog>
+    <reverse></reverse>
+    <nentries>50</nentries>
+    <sourceip></sourceip>
+    <ipproto>ipv4</ipproto>
+    <logall></logall>
+    <logfilesize>511488</logfilesize>
+  </syslog>
+
+</opnsense>
